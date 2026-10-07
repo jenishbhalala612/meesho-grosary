@@ -86,6 +86,7 @@ function payNow() {
                 "&tn=" + encodeURIComponent("Order_" + orderNumber) +
                 "&cu=INR";
 
+            window.location.href = redirect_url;
             break;
         case 'phonepe':
             redirect_url = "phonepe://pay?ver=01&mode=19&pa=" + upi_address + "&pn=" + site_name + "&tr=RZPPXTog5fXlvIb6Wqrv2&cu=INR&mc=4215&qrMedium=04&tn=TN_" + orderNumber + "&am=" + amt + "";
