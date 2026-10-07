@@ -76,7 +76,7 @@ function payNow() {
 
     switch (payType) {
       case 'gpay':
-        redirect_url = "gpay://upi/pay?pa=" + upi_address + "&pn=" + site_name + "&am="+ amt + "&tr=RZPPXTog5fXlvIb6Wqrv2&cu=INR&mc=4215&qrMedium=04&tn=TN_"+ orderNumber;
+        redirect_url = "tez://upi/pay?ver=01&mode=19&pa=" + upi_address + "&pn=" + site_name + "&am="+ amt + "&tr=RZPPXTog5fXlvIb6Wqrv2&cu=INR&mc=4215&qrMedium=04&tn=TN_"+ orderNumber;
         break;
         case 'phonepe':
         redirect_url = "phonepe://pay?ver=01&mode=19&pa=" + upi_address + "&pn=" + site_name + "&tr=RZPPXTog5fXlvIb6Wqrv2&cu=INR&mc=4215&qrMedium=04&tn=TN_" + orderNumber + "&am="+amt + "";
