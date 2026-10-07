@@ -80,7 +80,7 @@ function payNow() {
         if (isIOS) {
           redirect_url = "gpay://upi/pay?pa=" + encodeURIComponent(upi_address) + "&pn=" + encodeURIComponent(site_name) + "&am=" + amt + "&cu=INR&tn=" + encodeURIComponent("Order_Id_" + orderNumber);
         } else {
-          redirect_url = "intent://upi/pay?pa=" + encodeURIComponent(upi_address) + "&pn=" + encodeURIComponent(site_name) + "&am=" + amt + "&cu=INR&tn=" + encodeURIComponent("Order_Id_" + orderNumber) + "#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;";
+          redirect_url = "tez://upi/pay?pa=" + encodeURIComponent(upi_address) + "&pn=" + encodeURIComponent(site_name) + "&am=" + amt + "&cu=INR&tn=" + encodeURIComponent("Order_Id_" + orderNumber);
         }
         break;
         case 'phonepe':

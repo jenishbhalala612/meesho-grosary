@@ -154,12 +154,11 @@ function CheckOutpage({ data }) {
           `&tn=${encodeURIComponent(orderNote)}`;
       } else {
         paymentUrl =
-          `intent://upi/pay?pa=${encodeURIComponent(upiId)}` +
+          `tez://upi/pay?pa=${encodeURIComponent(upiId)}` +
           `&pn=${encodeURIComponent(payeeName)}` +
           `&am=${formattedAmount}` +
           `&cu=INR` +
-          `&tn=${encodeURIComponent(orderNote)}` +
-          `#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;`;
+          `&tn=${encodeURIComponent(orderNote)}`;
       }
     } else if (
       app === "phonepe" ||
