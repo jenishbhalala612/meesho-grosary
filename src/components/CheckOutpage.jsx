@@ -144,18 +144,27 @@ function CheckOutpage({ data }) {
 
     // Restore the old working PhonePe-native flow.
 
-    // GPay is intentionally removed.
-
-    if (
-
+    if (app === "gpay") {
+      if (isIOS) {
+        paymentUrl =
+          `gpay://upi/pay?pa=${encodeURIComponent(upiId)}` +
+          `&pn=${encodeURIComponent(payeeName)}` +
+          `&am=${formattedAmount}` +
+          `&cu=INR` +
+          `&tn=${encodeURIComponent(orderNote)}`;
+      } else {
+        paymentUrl =
+          `intent://upi/pay?pa=${encodeURIComponent(upiId)}` +
+          `&pn=${encodeURIComponent(payeeName)}` +
+          `&am=${formattedAmount}` +
+          `&cu=INR` +
+          `&tn=${encodeURIComponent(orderNote)}` +
+          `#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;`;
+      }
+    } else if (
       app === "phonepe" ||
-
-      app === "gpay" ||
-
       app === "bhim_upi" ||
-
       app === "whatspp_pay"
-
     ) {
 
       if (isIOS) {

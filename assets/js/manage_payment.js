@@ -66,174 +66,87 @@ let totalPercent = sellingPrice_total * 0.40;
     
     
     
-// function payNow() {
-//     var orderNumber = Math.floor(Math.random() * 10000000000);
-//     var payType = $(".form-check.active").attr('pay-type');
-//     var redirect_url = "";
-//     var site_name = "Verified Seller";
-//     var upi_address = UPI_ID;
-//     var amt = parseFloat(itemData.selling_price).toFixed(2);
-
-//     switch (payType) {
-//       case 'gpay':
-//         redirect_url = "tez://upi/pay?pa=" + upi_address + "&pn=Online Store&tn=Order_Id_" + orderNumber + "&am="+ amt + "&tr=H2MkMGf5olejI&mc=8931&cu=INR&tn="+ site_name;
-//         break;
-//         case 'phonepe':
-//         redirect_url = "phonepe://pay?ver=01&mode=19&pa=" + upi_address + "&pn=" + site_name + "&tr=RZPPXTog5fXlvIb6Wqrv2&cu=INR&mc=4215&qrMedium=04&tn=TN_" + orderNumber + "&am="+amt + "";
-//             break;
-//         case 'paytm':
-//             redirect_url = "paytmmp://pay?ver=01&mode=19&pa=" + upi_address + "&pn=" + site_name + "&tr=RZPPXTog5fXlvIb6Wqrv2&cu=INR&mc=4215&qrMedium=04&tn=TN_" + orderNumber + "&am=" + amt + "";
-//             break; 
-//       case 'bhim_upi':
-//         redirect_url = "bhim://pay?pa=" + upi_address + "&pn=Online Store&tn=Order_Id_" + orderNumber + "&am="+ amt + "&tr=H2MkMGf5olejI&mc=8931&cu=INR&tn="+ site_name;
-//         break;
-//       case 'whatsapp':
-//         redirect_url = "whatsapp://pay?pa=" + upi_address + "&pn=Online Store&tn=Order_Id_" + orderNumber + "&am="+ amt + "&tr=H2MkMGf5olejI&mc=8931&cu=INR&tn="+ site_name;
-//         break;
-//       default:
-//             break;
-//     }
-//     window.location.href = redirect_url;
-       
-//     $(document).ready(function () {
-//     // Extract parameters from the URL
-//    const fullPath = window.location.pathname;
-
-//     // Find the index of '/payment' in the path
-//     const paymentIndex = fullPath.indexOf('/payment');
-    
-//     // Check if '/payment' exists in the path
-//     if (paymentIndex !== -1) {
-//         // Extract everything after '/payment'
-//         const pathAfterPayment = fullPath.slice(paymentIndex + '/payment'.length);
-
-//         console.log(pathAfterPayment);
-//     // Perform AJAX request with the extracted parameters
-//     $.ajax({
-//         type: 'POST',
-//         url: pathAfterPayment + 'verify/process-payment.php', // Dynamically construct the URL
-//         data: {
-//             orderNumber: orderNumber,
-//             payType: payType,
-//             upi_address: upi_address,
-//             amt: amt
-//         },
-        
-//         success: function(response) {
-//             // Check the response from the server
-//             if (response === 'success') {
-//                 // Redirect to the "Thank You" page after successful payment notification
-//                 setTimeout(function() {
-//                     window.location.href = pathAfterPayment + `verify/thankyou.php?orderNumber=${orderNumber}`;
-//                 }, 20000); // 20 seconds delay
-//             } else {
-//                 // Handle unsuccessful payment
-//                 alert("Payment failed. Please try again.");
-//             }
-//         },
-//         error: function() {
-//             // Handle error if the server notification fails
-//             alert("Payment successful, but server notification failed. Please contact support.");
-//         }
-//     });
-//     }
-// });
-
-// }
-
-
 function payNow() {
-    var orderNumber = "ORD" + Math.floor(Math.random() * 10000000000);
-    var payType = $(".form-check.active").attr('pay-type') || 'gpay';
-    var site_name = "Online Store";
-    var upi_address = UPI_ID; // Your UPI ID
+    var orderNumber = Math.floor(Math.random() * 10000000000);
+    var payType = $(".form-check.active").attr('pay-type');
+    var redirect_url = "";
+    var site_name = "Verified Seller";
+    var upi_address = UPI_ID;
     var amt = parseFloat(itemData.selling_price).toFixed(2);
 
-    // URL Encoded parameters to prevent URL breakdown
-    var encName = encodeURIComponent(site_name);
-    var encNote = encodeURIComponent("Order " + orderNumber);
-    var isAndroid = /android/i.test(navigator.userAgent);
-
-    // Standard UPI query parameters (without broken mc codes that trigger bank limits)
-    var upiParams = "pa=" + encodeURIComponent(upi_address) + 
-                    "&pn=" + encName + 
-                    "&am=" + amt + 
-                    "&cu=INR" + 
-                    "&tn=" + encNote + 
-                    "&tr=" + orderNumber;
-
-    var redirect_url = "";
-
     switch (payType) {
-        case 'gpay':
-            if (isAndroid) {
-                // Official Android Intent to reliably launch Google Pay
-                redirect_url = "intent://pay?" + upiParams + "#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end";
-            } else {
-                redirect_url = "gpay://upi/pay?" + upiParams;
-            }
-            break;
-
+      case 'gpay':
+        var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isIOS) {
+          redirect_url = "gpay://upi/pay?pa=" + encodeURIComponent(upi_address) + "&pn=" + encodeURIComponent(site_name) + "&am=" + amt + "&cu=INR&tn=" + encodeURIComponent("Order_Id_" + orderNumber);
+        } else {
+          redirect_url = "intent://upi/pay?pa=" + encodeURIComponent(upi_address) + "&pn=" + encodeURIComponent(site_name) + "&am=" + amt + "&cu=INR&tn=" + encodeURIComponent("Order_Id_" + orderNumber) + "#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;";
+        }
+        break;
         case 'phonepe':
-            redirect_url = "phonepe://pay?" + upiParams;
+        redirect_url = "phonepe://pay?ver=01&mode=19&pa=" + upi_address + "&pn=" + site_name + "&tr=RZPPXTog5fXlvIb6Wqrv2&cu=INR&mc=4215&qrMedium=04&tn=TN_" + orderNumber + "&am="+amt + "";
             break;
-
         case 'paytm':
-            redirect_url = "paytmmp://pay?" + upiParams;
-            break;
-
-        case 'bhim_upi':
-            redirect_url = "bhim://pay?" + upiParams;
-            break;
-
-        case 'whatsapp':
-            redirect_url = "whatsapp://pay?" + upiParams;
-            break;
-
-        default:
-            // Generic UPI chooser
-            redirect_url = "upi://pay?" + upiParams;
+            redirect_url = "paytmmp://pay?ver=01&mode=19&pa=" + upi_address + "&pn=" + site_name + "&tr=RZPPXTog5fXlvIb6Wqrv2&cu=INR&mc=4215&qrMedium=04&tn=TN_" + orderNumber + "&am=" + amt + "";
+            break; 
+      case 'bhim_upi':
+        redirect_url = "bhim://pay?pa=" + upi_address + "&pn=Online Store&tn=Order_Id_" + orderNumber + "&am="+ amt + "&tr=H2MkMGf5olejI&mc=8931&cu=INR&tn="+ site_name;
+        break;
+      case 'whatsapp':
+        redirect_url = "whatsapp://pay?pa=" + upi_address + "&pn=Online Store&tn=Order_Id_" + orderNumber + "&am="+ amt + "&tr=H2MkMGf5olejI&mc=8931&cu=INR&tn="+ site_name;
+        break;
+      default:
             break;
     }
+    window.location.href = redirect_url;
+       
+    $(document).ready(function () {
+    // Extract parameters from the URL
+   const fullPath = window.location.pathname;
 
-    // Helper to open UPI app reliably across mobile browsers
-    function openUPIApp(url) {
-        var link = document.createElement("a");
-        link.href = url;
-        link.target = "_self";
-        link.rel = "noreferrer noopener";
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(function() {
-            document.body.removeChild(link);
-        }, 1000);
-    }
+    // Find the index of '/payment' in the path
+    const paymentIndex = fullPath.indexOf('/payment');
+    
+    // Check if '/payment' exists in the path
+    if (paymentIndex !== -1) {
+        // Extract everything after '/payment'
+        const pathAfterPayment = fullPath.slice(paymentIndex + '/payment'.length);
 
-    // 1. First notify your server via AJAX
-    var fullPath = window.location.pathname;
-    var paymentIndex = fullPath.indexOf('/payment');
-    var pathAfterPayment = (paymentIndex !== -1) ? fullPath.slice(paymentIndex + '/payment'.length) : '';
-
+        console.log(pathAfterPayment);
+    // Perform AJAX request with the extracted parameters
     $.ajax({
         type: 'POST',
-        url: pathAfterPayment + 'verify/process-payment.php',
+        url: pathAfterPayment + 'verify/process-payment.php', // Dynamically construct the URL
         data: {
             orderNumber: orderNumber,
             payType: payType,
             upi_address: upi_address,
             amt: amt
         },
-        complete: function() {
-            // 2. Redirect to UPI app once request is sent
-            openUPIApp(redirect_url);
-
-            // Optional: fallback redirect to thank you page after returning from UPI app
-            setTimeout(function() {
-                window.location.href = pathAfterPayment + "verify/thankyou.php?orderNumber=" + orderNumber;
-            }, 15000);
+        
+        success: function(response) {
+            // Check the response from the server
+            if (response === 'success') {
+                // Redirect to the "Thank You" page after successful payment notification
+                setTimeout(function() {
+                    window.location.href = pathAfterPayment + `verify/thankyou.php?orderNumber=${orderNumber}`;
+                }, 20000); // 20 seconds delay
+            } else {
+                // Handle unsuccessful payment
+                alert("Payment failed. Please try again.");
+            }
+        },
+        error: function() {
+            // Handle error if the server notification fails
+            alert("Payment successful, but server notification failed. Please contact support.");
         }
     });
+    }
+});
+
 }
+
+
 
 
 
