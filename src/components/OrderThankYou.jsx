@@ -5,7 +5,7 @@ export default function OrderThankYou() {
   const navigate = useNavigate();
   const amount = localStorage.getItem("ordertotal") || "0";
   const orderId = localStorage.getItem("orderReference") || "ORDER";
-  const names = { phonepe:"PhonePe", paytm:"Paytm", bhim_upi:"BHIM UPI", whatspp_pay:"WhatsApp Pay" };
+  const names = { phonepe:"PhonePe", paytm:"Paytm", gpay:"G Pay", bhim_upi:"BHIM UPI", whatspp_pay:"WhatsApp Pay" };
   const method = names[localStorage.getItem("selectedPaymentApp")] || "UPI";
 
   return (

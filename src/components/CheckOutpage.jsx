@@ -20,6 +20,8 @@ import {
 
 import LazyImage from "./LazyImage";
 
+import gpayIcon from "../images/gpay.png";
+
 function CheckOutpage({ data }) {
 
   const { buydata } = useSelector((state) => state?.buydata);
@@ -147,6 +149,8 @@ function CheckOutpage({ data }) {
     if (
 
       app === "phonepe" ||
+
+      app === "gpay" ||
 
       app === "bhim_upi" ||
 
@@ -1584,7 +1588,7 @@ useEffect(() => {
 
                     <span className="text-[14px] font-[600] text-[#25252d]">
 
-                      UPI(PhonePe/Paytm/BHIM)
+                      UPI(PhonePe/Paytm/Google Pay)
 
                     </span>
 
@@ -1598,13 +1602,11 @@ useEffect(() => {
 
                 {[
 
+                  ["gpay", "G Pay", "G"],
+
                   ["phonepe", "PhonePe", "P"],
 
-                  ["paytm", "Paytm", "P"],
-
-                  ["bhim_upi", "BHIM UPI", "B"],
-
-                  ["whatspp_pay", "WhatsApp Pay", "W"],
+                  ["paytm", "Paytm", "P"]
 
                 ].map(([value, label, icon]) => (
 
@@ -1642,7 +1644,14 @@ useEffect(() => {
 
                     </div>
 
-                    {value === "phonepe" ? (
+                    {
+                     value === "gpay" ? (
+                      <img
+                        src={gpayIcon}
+                        alt="G Pay"
+                        className="w-[30px] h-[30px] object-contain rounded-full"
+                      />
+                    ) : value === "phonepe" ? (
                       <img
                         src="https://cdn.simpleicons.org/phonepe/5F259F"
                         alt="PhonePe"
@@ -1657,12 +1666,6 @@ useEffect(() => {
                       <div className="w-[34px] h-[30px] rounded-[5px] bg-[#0b7a5a] text-white flex items-center justify-center text-[9px] font-[800]">
                         BHIM
                       </div>
-                    ) : value === "whatspp_pay" ? (
-                      <img
-                        src="https://cdn.simpleicons.org/whatsapp/25D366"
-                        alt="WhatsApp Pay"
-                        className="w-[30px] h-[30px] object-contain"
-                      />
                     ) : (
                       <span className="w-[30px] h-[30px] rounded-full bg-gray-50 flex items-center justify-center text-[13px] font-bold">
                         {icon}
