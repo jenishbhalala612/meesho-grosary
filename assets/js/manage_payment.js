@@ -83,8 +83,8 @@ function payNow() {
                 "&pn=" + encodeURIComponent(site_name) +
                 "&am=" + encodeURIComponent(amt) +
                 "&tr=" + encodeURIComponent(transactionId) +
-                "&tn=" + encodeURIComponent("Order_" + orderNumber) +
-                "&cu=INR";
+                "&cu=INR&mc=4215&qrMedium=04" +
+                "&tn=" + encodeURIComponent("TN_" + orderNumber);
 
             window.location.href = redirect_url;
             break;
