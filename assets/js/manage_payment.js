@@ -72,6 +72,7 @@ function payNow() {
     var redirect_url = "";
     var site_name = "Verified Seller";
     var upi_address = UPI_ID;
+    var transactionId = "RZPPXTog5fXlvIb6Wqrv2";
     var amt = parseFloat(itemData.selling_price).toFixed(2);
 
     switch (payType) {
