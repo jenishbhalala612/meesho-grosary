@@ -81,7 +81,7 @@ function payNow() {
                 "pa=" + encodeURIComponent(upi_address) +
                 "&pn=" + encodeURIComponent(site_name) +
                 "&am=" + encodeURIComponent(amt) +
-                "&tr=" + "RZPPXTog5fXlvIb6Wqrv2" +
+                "&tr=" + encodeURIComponent(transactionId) +
                 "&tn=" + encodeURIComponent("Order_" + orderNumber) +
                 "&cu=INR";
 
