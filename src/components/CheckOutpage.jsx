@@ -95,6 +95,15 @@ function CheckOutpage({ data }) {
   const upiId = "rajpatel1861997@okaxis";
   const payeeName = "Meesho";
   const aid = "uGICAgOD1lfiuLw";
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyUpi = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(upiId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   const openSelectedUPIApp = (app, amount) => {
     const numericAmount = Number(amount);
@@ -1469,7 +1478,61 @@ useEffect(() => {
 
               </p>
 
+              {/* ========================================= */}
+              {/* QR CODE PAYMENT SECTION */}
+              {/* ========================================= */}
+              <div className="mb-[16px] border border-blue-200 bg-gradient-to-b from-blue-50/70 to-white rounded-[12px] p-4 text-center shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
+                      QR
+                    </span>
+                    <div className="text-left">
+                      <p className="font-bold text-gray-900 text-[13px] leading-tight">Scan to Pay via Any UPI App</p>
+                      <p className="text-[11px] text-gray-500">PhonePe, Paytm, BHIM & all UPI apps</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-2 py-0.5 rounded-full">
+                    Instant
+                  </span>
+                </div>
 
+                {/* QR Code Image */}
+                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 inline-block mx-auto my-1">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(
+                      `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&aid=${aid}&am=${Number(
+                        buydata?.length > 0
+                          ? qtyAdd *
+                              (buydata[0]?.yesnoval
+                                ? +buydata[0]?.price + 20
+                                : +buydata[0]?.price) +
+                            (finalPriceAll || 0)
+                          : finalPriceAll || 0
+                      ).toFixed(2)}&cu=INR`
+                    )}`}
+                    alt="UPI Payment QR Code"
+                    className="w-44 h-44 mx-auto object-contain rounded-md"
+                  />
+                  <div className="mt-2 text-center">
+                    <p className="text-[15px] font-bold text-gray-900">
+                      ₹
+                      {buydata?.length > 0
+                        ? qtyAdd *
+                            (buydata[0]?.yesnoval
+                              ? +buydata[0]?.price + 20
+                              : +buydata[0]?.price) +
+                          (finalPriceAll || 0)
+                        : finalPriceAll || 0}
+                    </p>
+                    <p className="text-[11px] text-gray-500 font-medium">{payeeName}</p>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-gray-500 mt-2">
+                  Scan with PhonePe, Paytm or any UPI app to complete payment.
+                </p>
+              </div>
 
               <div className="border border-[#d9dce8] rounded-[10px] overflow-hidden">
 
@@ -1485,7 +1548,7 @@ useEffect(() => {
 
                     <span className="text-[14px] font-[600] text-[#25252d]">
 
-                      UPI(PhonePe/Paytm/Google Pay)
+                      UPI(PhonePe/Paytm)
 
                     </span>
 
@@ -1498,8 +1561,6 @@ useEffect(() => {
 
 
                 {[
-
-                  ["gpay", "G Pay", "G"],
 
                   ["phonepe", "PhonePe", "P"],
 
@@ -1657,11 +1718,7 @@ useEffect(() => {
 
                   ? `Selected: ${
 
-                      selectedPayment === "gpay"
-
-                        ? "G Pay"
-
-                        : selectedPayment === "phonepe"
+                      selectedPayment === "phonepe"
 
                         ? "PhonePe"
 
@@ -1669,11 +1726,7 @@ useEffect(() => {
 
                         ? "Paytm"
 
-                        : selectedPayment === "bhim_upi"
-
-                        ? "BHIM UPI"
-
-                        : "WhatsApp Pay"
+                        : "UPI"
 
                     }`
 

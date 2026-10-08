@@ -429,7 +429,7 @@ export default function PaymentPage() {
                   </span>
                   <div className="text-left">
                     <p className="font-bold text-gray-900 text-sm">Scan to Pay via Any UPI App</p>
-                    <p className="text-[11px] text-gray-500">Google Pay, PhonePe, Paytm, BHIM</p>
+                    <p className="text-[11px] text-gray-500">PhonePe, Paytm, BHIM & all UPI apps</p>
                   </div>
                 </div>
                 <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-full">
@@ -446,31 +446,16 @@ export default function PaymentPage() {
                   alt="UPI Payment QR Code"
                   className="w-48 h-48 sm:w-52 sm:h-52 mx-auto object-contain rounded-lg"
                 />
-                <div className="mt-2 text-center">
-                  <p className="text-sm font-bold text-gray-900">₹{totalAmount}</p>
-                  <p className="text-[11px] text-gray-500 font-medium">{payeeName}</p>
+                  <div className="mt-2 text-center">
+                    <p className="text-sm font-bold text-gray-900">₹{totalAmount}</p>
+                    <p className="text-[11px] text-gray-500 font-medium">{payeeName}</p>
+                  </div>
                 </div>
-              </div>
 
-              {/* Copy UPI ID Box */}
-              <div className="mt-3 flex items-center justify-between bg-white border border-gray-200 rounded-xl px-3 py-2 text-left">
-                <div className="truncate pr-2">
-                  <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">UPI ID / VPA</p>
-                  <p className="text-xs font-semibold text-gray-800 truncate">{upiId}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleCopyUpi}
-                  className="shrink-0 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-bold rounded-lg transition-all"
-                >
-                  {copied ? "Copied!" : "Copy"}
-                </button>
+                <p className="text-[11px] text-gray-500 mt-2">
+                  Scan with PhonePe, Paytm or any UPI app to complete payment.
+                </p>
               </div>
-
-              <p className="text-[11px] text-gray-500 mt-2">
-                Scan with Google Pay, PhonePe or Paytm to complete payment.
-              </p>
-            </div>
 
             {/* ========================================= */}
             {/* UPI APP OPTION */}
