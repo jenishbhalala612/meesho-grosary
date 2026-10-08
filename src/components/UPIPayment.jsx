@@ -65,14 +65,17 @@ export default function PaymentPage() {
     dispatch(setCartTotalAction(totalAmount));
 
     const amount = Number(totalAmount).toFixed(2);
+    const uniqueTxnRef = `EZYS${Date.now().toString().slice(-8)}${Math.floor(10 + Math.random() * 90)}`;
     const orderNote = "Payment";
     const isIOS =
       typeof navigator !== "undefined" &&
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    const cleanUpiQuery =
+    const merchantQuery =
       `pa=${encodeURIComponent(upiId)}` +
       `&pn=${encodeURIComponent(verifiedAccountName)}` +
+      `&mc=5045` +
+      `&tr=${encodeURIComponent(uniqueTxnRef)}` +
       `&am=${encodeURIComponent(amount)}` +
       `&cu=INR` +
       `&tn=${encodeURIComponent(orderNote)}`;
@@ -80,36 +83,15 @@ export default function PaymentPage() {
     let paymentUrl = "";
 
     if (app === "phonepe") {
-      if (isIOS) {
-        paymentUrl = `phonepe://pay?${cleanUpiQuery}`;
-      } else {
-        const payload = {
-          p2pPaymentCheckoutParams: {
-            checkoutType: "COLLECT",
-            initialAmount: Math.round(Number(totalAmount) * 100),
-            note: {
-              type: "text",
-              message: orderNote,
-            },
-            supportedInstruments: -1,
-          },
-          contact: {
-            type: "EXTERNAL_MERCHANT",
-            name: verifiedAccountName,
-            vpa: upiId,
-          },
-        };
-
-        const encodedPayload = btoa(
-          unescape(encodeURIComponent(JSON.stringify(payload)))
-        );
-
-        paymentUrl = `phonepe://native?data=${encodeURIComponent(encodedPayload)}&id=p2ppayment`;
-      }
+      paymentUrl = isIOS
+        ? `phonepe://pay?${merchantQuery}`
+        : `intent://pay?${merchantQuery}#Intent;scheme=upi;package=com.phonepe.app;end;`;
     } else if (app === "paytm") {
-      paymentUrl = `paytmmp://pay?${cleanUpiQuery}`;
+      paymentUrl = isIOS
+        ? `paytmmp://pay?${merchantQuery}`
+        : `intent://pay?${merchantQuery}#Intent;scheme=upi;package=net.one97.paytm;end;`;
     } else {
-      paymentUrl = `upi://pay?${cleanUpiQuery}`;
+      paymentUrl = `upi://pay?${merchantQuery}`;
     }
 
     setShowPaymentOptions(false);
