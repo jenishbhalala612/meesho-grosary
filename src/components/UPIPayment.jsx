@@ -62,8 +62,6 @@ export default function PaymentPage() {
     const upiUrl =
       `upi://pay?pa=${encodeURIComponent(upiId)}` +
       `&pn=${encodeURIComponent(payeeName)}` +
-      `&mc=${encodeURIComponent(merchantCode)}` +
-      `&tr=${encodeURIComponent(txnRef)}` +
       `&am=${encodeURIComponent(amount)}` +
       `&cu=INR` +
       `&tn=${encodeURIComponent(orderNote)}`;

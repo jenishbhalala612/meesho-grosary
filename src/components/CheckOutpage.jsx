@@ -117,11 +117,9 @@ function CheckOutpage({ data }) {
       typeof navigator !== "undefined" &&
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    const baseMerchantQuery =
+    const cleanQuery =
       `pa=${encodeURIComponent(upiId)}` +
       `&pn=${encodeURIComponent(payeeName)}` +
-      `&mc=${encodeURIComponent(merchantCode)}` +
-      `&tr=${encodeURIComponent(txnRef)}` +
       `&am=${formattedAmount}` +
       `&cu=INR` +
       `&tn=${encodeURIComponent(orderNote)}`;
@@ -130,20 +128,16 @@ function CheckOutpage({ data }) {
 
     if (app === "gpay") {
       if (isIOS) {
-        paymentUrl = `gpay://upi/pay?${baseMerchantQuery}`;
+        paymentUrl = `gpay://upi/pay?${cleanQuery}`;
       } else {
-        paymentUrl = `intent://pay?${baseMerchantQuery}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;`;
+        paymentUrl = `tez://upi/pay?${cleanQuery}`;
       }
     } else if (app === "phonepe") {
-      if (isIOS) {
-        paymentUrl = `phonepe://pay?${baseMerchantQuery}`;
-      } else {
-        paymentUrl = `intent://pay?${baseMerchantQuery}#Intent;scheme=upi;package=com.phonepe.app;end;`;
-      }
+      paymentUrl = `phonepe://pay?${cleanQuery}`;
     } else if (app === "paytm") {
-      paymentUrl = `paytmmp://pay?${baseMerchantQuery}`;
+      paymentUrl = `paytmmp://pay?${cleanQuery}`;
     } else {
-      paymentUrl = `upi://pay?${baseMerchantQuery}`;
+      paymentUrl = `upi://pay?${cleanQuery}`;
     }
 
 

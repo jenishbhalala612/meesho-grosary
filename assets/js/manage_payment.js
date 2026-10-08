@@ -80,38 +80,32 @@ function payNow() {
     var txnRef = "EZYS7046460248";
     var amt = (itemData && itemData.selling_price) ? parseFloat(itemData.selling_price).toFixed(2) : "0.00";
 
-    var baseMerchantQuery = "pa=" + encodeURIComponent(upi_address) +
-                           "&pn=" + encodeURIComponent(site_name) +
-                           "&mc=" + encodeURIComponent(merchant_code) +
-                           "&tr=" + encodeURIComponent(txnRef) +
-                           "&am=" + amt +
-                           "&cu=INR" +
-                           "&tn=" + encodeURIComponent("Order_" + orderNumber);
+    var cleanQuery = "pa=" + encodeURIComponent(upi_address) +
+                     "&pn=" + encodeURIComponent(site_name) +
+                     "&am=" + amt +
+                     "&cu=INR" +
+                     "&tn=" + encodeURIComponent("Order_" + orderNumber);
 
     var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     switch (payType) {
       case 'gpay':
         if (isIOS) {
-          redirect_url = "gpay://upi/pay?" + baseMerchantQuery;
+          redirect_url = "gpay://upi/pay?" + cleanQuery;
         } else {
-          redirect_url = "intent://pay?" + baseMerchantQuery + "#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;";
+          redirect_url = "tez://upi/pay?" + cleanQuery;
         }
         break;
       case 'phonepe':
-        if (isIOS) {
-          redirect_url = "phonepe://pay?" + baseMerchantQuery;
-        } else {
-          redirect_url = "intent://pay?" + baseMerchantQuery + "#Intent;scheme=upi;package=com.phonepe.app;end;";
-        }
+        redirect_url = "phonepe://pay?" + cleanQuery;
         break;
       case 'paytm':
-        redirect_url = "paytmmp://pay?" + baseMerchantQuery;
+        redirect_url = "paytmmp://pay?" + cleanQuery;
         break; 
       case 'bhim_upi':
       case 'whatsapp':
       default:
-        redirect_url = "upi://pay?" + baseMerchantQuery;
+        redirect_url = "upi://pay?" + cleanQuery;
         break;
     }
     window.location.href = redirect_url;
