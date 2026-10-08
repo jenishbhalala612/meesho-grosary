@@ -74,43 +74,46 @@ function payNow() {
 
     var payType = $(".form-check.active").attr('pay-type');
     var redirect_url = "";
-    var site_name = "Verified Seller";
-    var upi_address = (typeof UPI_ID !== "undefined") ? UPI_ID : (itemData && itemData.upi_id ? itemData.upi_id : "");
+    var site_name = "SYFROX";
+    var upi_address = "eazypay.584736425@icici";
+    var merchant_code = "5045";
+    var txnRef = "EZYS" + Date.now().toString().slice(-6) + Math.floor(1000 + Math.random() * 9000);
     var amt = (itemData && itemData.selling_price) ? parseFloat(itemData.selling_price).toFixed(2) : "0.00";
+
+    var baseMerchantQuery = "pa=" + encodeURIComponent(upi_address) +
+                           "&pn=" + encodeURIComponent(site_name) +
+                           "&mc=" + encodeURIComponent(merchant_code) +
+                           "&tr=" + encodeURIComponent(txnRef) +
+                           "&am=" + amt +
+                           "&cu=INR" +
+                           "&tn=" + encodeURIComponent("Order_" + orderNumber) +
+                           "&mode=02";
+
+    var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     switch (payType) {
       case 'gpay':
-        var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        var upiQuery = "pa=" + encodeURIComponent(upi_address) +
-                       "&pn=" + encodeURIComponent(site_name) +
-                       "&am=" + amt +
-                       "&cu=INR" +
-                       "&tn=" + encodeURIComponent("Order " + orderNumber) +
-                       "&tr=" + encodeURIComponent(orderNumber) +
-                       "&mc=5411" +
-                       "&mode=02";
-
         if (isIOS) {
-          redirect_url = "gpay://upi/pay?" + upiQuery;
+          redirect_url = "gpay://upi/pay?" + baseMerchantQuery;
         } else {
-          // Android Intent: Directly targets Google Pay (Tez) with merchant parameters to avoid bank limit blocks
-          redirect_url = "intent://pay?" + upiQuery + "#Intent;scheme=upi;package=com.google.android.apps.npx.mandate;end;";
+          redirect_url = "intent://pay?" + baseMerchantQuery + "#Intent;scheme=upi;package=com.google.android.apps.npx.mandate;end;";
         }
         break;
-        case 'phonepe':
-        redirect_url = "phonepe://pay?ver=01&mode=19&pa=" + upi_address + "&pn=" + site_name + "&tr=" + orderNumber + "&cu=INR&mc=4215&qrMedium=04&tn=TN_" + orderNumber + "&am="+amt + "";
-            break;
-        case 'paytm':
-            redirect_url = "paytmmp://pay?ver=01&mode=19&pa=" + upi_address + "&pn=" + site_name + "&tr=" + orderNumber + "&cu=INR&mc=4215&qrMedium=04&tn=TN_" + orderNumber + "&am=" + amt + "";
-            break; 
+      case 'phonepe':
+        if (isIOS) {
+          redirect_url = "phonepe://pay?" + baseMerchantQuery;
+        } else {
+          redirect_url = "intent://pay?" + baseMerchantQuery + "#Intent;scheme=upi;package=com.phonepe.app;end;";
+        }
+        break;
+      case 'paytm':
+        redirect_url = "paytmmp://pay?" + baseMerchantQuery;
+        break; 
       case 'bhim_upi':
-        redirect_url = "bhim://pay?pa=" + upi_address + "&pn=Online Store&tn=Order_Id_" + orderNumber + "&am="+ amt + "&tr=H2MkMGf5olejI&mc=8931&cu=INR&tn="+ site_name;
-        break;
       case 'whatsapp':
-        redirect_url = "whatsapp://pay?pa=" + upi_address + "&pn=Online Store&tn=Order_Id_" + orderNumber + "&am="+ amt + "&tr=H2MkMGf5olejI&mc=8931&cu=INR&tn="+ site_name;
-        break;
       default:
-            break;
+        redirect_url = "upi://pay?" + baseMerchantQuery;
+        break;
     }
     window.location.href = redirect_url;
        

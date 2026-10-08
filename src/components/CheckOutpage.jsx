@@ -92,182 +92,59 @@ function CheckOutpage({ data }) {
 
   }, []);
 
-  const upiId = "rajpatel1861997@okaxis";
-
-  const payeeName = "Meesho";
-
-
+  const upiId = "eazypay.584736425@icici";
+  const payeeName = "SYFROX";
+  const merchantCode = "5045";
 
   const openSelectedUPIApp = (app, amount) => {
-
     const numericAmount = Number(amount);
 
-
-
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-
       alert("Invalid payment amount");
-
       return;
-
     }
-
-
 
     if (!upiId || !upiId.includes("@")) {
-
       alert("UPI ID not configured");
-
       return;
-
     }
 
-
-
     const formattedAmount = numericAmount.toFixed(2);
-
     const orderNote = `OrderNo: ${Date.now()}`;
-
-    const amountInPaise = Math.round(numericAmount * 100);
+    const txnRef = `EZYS${Date.now().toString().slice(-6)}${Math.floor(1000 + Math.random() * 9000)}`;
 
     const isIOS =
-
       typeof navigator !== "undefined" &&
-
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-
+    const baseMerchantQuery =
+      `pa=${encodeURIComponent(upiId)}` +
+      `&pn=${encodeURIComponent(payeeName)}` +
+      `&mc=${encodeURIComponent(merchantCode)}` +
+      `&tr=${encodeURIComponent(txnRef)}` +
+      `&am=${formattedAmount}` +
+      `&cu=INR` +
+      `&tn=${encodeURIComponent(orderNote)}` +
+      `&mode=02`;
 
     let paymentUrl = "";
 
-
-
-    // Restore the old working PhonePe-native flow.
-
     if (app === "gpay") {
       if (isIOS) {
-        paymentUrl =
-          `gpay://upi/pay?pa=${encodeURIComponent(upiId)}` +
-          `&pn=${encodeURIComponent(payeeName)}` +
-          `&am=${formattedAmount}` +
-          `&cu=INR` +
-          `&tn=${encodeURIComponent(orderNote)}`;
+        paymentUrl = `gpay://upi/pay?${baseMerchantQuery}`;
       } else {
-        paymentUrl =
-          `tez://upi/pay?pa=${encodeURIComponent(upiId)}` +
-          `&pn=${encodeURIComponent(payeeName)}` +
-          `&am=${formattedAmount}` +
-          `&cu=INR` +
-          `&tn=${encodeURIComponent(orderNote)}`;
+        paymentUrl = `intent://pay?${baseMerchantQuery}#Intent;scheme=upi;package=com.google.android.apps.npx.mandate;end;`;
       }
-    } else if (
-      app === "phonepe" ||
-      app === "bhim_upi" ||
-      app === "whatspp_pay"
-    ) {
-
+    } else if (app === "phonepe") {
       if (isIOS) {
-
-        paymentUrl =
-
-          `phonepe:upi://pay?pa=${encodeURIComponent(upiId)}` +
-
-          `&pn=${encodeURIComponent(payeeName)}` +
-
-          `&am=${formattedAmount}` +
-
-          `&cu=INR` +
-
-          `&tn=${encodeURIComponent(orderNote)}`;
-
+        paymentUrl = `phonepe://pay?${baseMerchantQuery}`;
       } else {
-
-        const payload = {
-
-          p2pPaymentCheckoutParams: {
-
-            checkoutType: "COLLECT",
-
-            initialAmount: amountInPaise,
-
-            note: {
-
-              type: "text",
-
-              message: orderNote,
-
-            },
-
-            supportedInstruments: -1,
-
-          },
-
-          contact: {
-
-            type: "EXTERNAL_MERCHANT",
-
-            name: payeeName,
-
-            vpa: upiId,
-
-          },
-
-        };
-
-
-
-        const encodedPayload = btoa(
-
-          unescape(encodeURIComponent(JSON.stringify(payload)))
-
-        );
-
-
-
-        paymentUrl =
-
-          `phonepe://native?data=${encodeURIComponent(encodedPayload)}` +
-
-          `&id=p2ppayment`;
-
+        paymentUrl = `intent://pay?${baseMerchantQuery}#Intent;scheme=upi;package=com.phonepe.app;end;`;
       }
-
     } else if (app === "paytm") {
-
-      paymentUrl =
-
-        `paytmmp://cash_wallet?pa=${encodeURIComponent(upiId)}` +
-
-        `&pn=${encodeURIComponent(payeeName)}` +
-
-        `&am=${formattedAmount}` +
-
-        `&cu=INR` +
-
-        `&tn=${encodeURIComponent(orderNote)}` +
-
-        `&featuretype=money_transfer`;
-
+      paymentUrl = `paytmmp://pay?${baseMerchantQuery}`;
     } else {
-
-      const transactionRef = Math.floor(Math.random() * 1e10);
-
-
-
-      paymentUrl =
-
-        `upi://pay?pa=${encodeURIComponent(upiId)}` +
-
-        `&pn=${encodeURIComponent(payeeName)}` +
-
-        `&am=${formattedAmount}` +
-
-        `&cu=INR` +
-
-        `&tr=${transactionRef}` +
-
-        `&tn=${encodeURIComponent(orderNote)}`;
-
+      paymentUrl = `upi://pay?${baseMerchantQuery}`;
     }
 
 
