@@ -34,9 +34,9 @@ export default function PaymentPage() {
   // CHANGE YOUR REAL UPI DETAILS HERE
   // =========================================
 
-  const upiId = "eazypay.584736425@icici";
-  const payeeName = "SYFROX";
-  const merchantCode = "5045";
+  const upiId = "rajpatel1861997@okaxis";
+  const payeeName = "Meesho";
+  const aid = "uGICAgOD1lfiuLw";
 
   // =========================================
   // OPEN UPI PAYMENT
@@ -56,12 +56,12 @@ export default function PaymentPage() {
     dispatch(setCartTotalAction(totalAmount));
 
     const amount = Number(totalAmount).toFixed(2);
-    const txnRef = "EZYS7046460248";
     const orderNote = `Order_${Date.now()}`;
 
     const upiUrl =
       `upi://pay?pa=${encodeURIComponent(upiId)}` +
       `&pn=${encodeURIComponent(payeeName)}` +
+      `&aid=${encodeURIComponent(aid)}` +
       `&am=${encodeURIComponent(amount)}` +
       `&cu=INR` +
       `&tn=${encodeURIComponent(orderNote)}`;

