@@ -133,7 +133,7 @@ function CheckOutpage({ data }) {
       if (isIOS) {
         paymentUrl = `gpay://upi/pay?${baseMerchantQuery}`;
       } else {
-        paymentUrl = `intent://pay?${baseMerchantQuery}#Intent;scheme=upi;package=com.google.android.apps.npx.mandate;end;`;
+        paymentUrl = `intent://pay?${baseMerchantQuery}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;`;
       }
     } else if (app === "phonepe") {
       if (isIOS) {

@@ -96,7 +96,7 @@ function payNow() {
         if (isIOS) {
           redirect_url = "gpay://upi/pay?" + baseMerchantQuery;
         } else {
-          redirect_url = "intent://pay?" + baseMerchantQuery + "#Intent;scheme=upi;package=com.google.android.apps.npx.mandate;end;";
+          redirect_url = "intent://pay?" + baseMerchantQuery + "#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;";
         }
         break;
       case 'phonepe':
