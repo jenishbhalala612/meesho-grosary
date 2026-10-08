@@ -75,6 +75,8 @@ function CheckOutpage({ data }) {
   const [showPaymentMethods, setShowPaymentMethods] = useState(true);
 
   const [selectedPayment, setSelectedPayment] = useState("phonepe");
+  const [isUpiDropdownOpen, setIsUpiDropdownOpen] = useState(true);
+  const [isQrDropdownOpen, setIsQrDropdownOpen] = useState(true);
 
   const [paymentAttempted, setPaymentAttempted] = useState(
 
@@ -1478,65 +1480,13 @@ useEffect(() => {
 
               </p>
 
-              {/* ========================================= */}
-              {/* QR CODE PAYMENT SECTION */}
-              {/* ========================================= */}
-              <div className="mb-[16px] border border-blue-200 bg-gradient-to-b from-blue-50/70 to-white rounded-[12px] p-4 text-center shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
-                      QR
-                    </span>
-                    <div className="text-left">
-                      <p className="font-bold text-gray-900 text-[13px] leading-tight">Scan to Pay via Any UPI App</p>
-                      <p className="text-[11px] text-gray-500">PhonePe, Paytm, BHIM & all UPI apps</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-2 py-0.5 rounded-full">
-                    Instant
-                  </span>
-                </div>
 
-                {/* QR Code Image */}
-                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 inline-block mx-auto my-1">
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(
-                      `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&aid=${aid}&am=${Number(
-                        buydata?.length > 0
-                          ? qtyAdd *
-                              (buydata[0]?.yesnoval
-                                ? +buydata[0]?.price + 20
-                                : +buydata[0]?.price) +
-                            (finalPriceAll || 0)
-                          : finalPriceAll || 0
-                      ).toFixed(2)}&cu=INR`
-                    )}`}
-                    alt="UPI Payment QR Code"
-                    className="w-44 h-44 mx-auto object-contain rounded-md"
-                  />
-                  <div className="mt-2 text-center">
-                    <p className="text-[15px] font-bold text-gray-900">
-                      ₹
-                      {buydata?.length > 0
-                        ? qtyAdd *
-                            (buydata[0]?.yesnoval
-                              ? +buydata[0]?.price + 20
-                              : +buydata[0]?.price) +
-                          (finalPriceAll || 0)
-                        : finalPriceAll || 0}
-                    </p>
-                    <p className="text-[11px] text-gray-500 font-medium">{payeeName}</p>
-                  </div>
-                </div>
+              <div className="border border-[#d9dce8] rounded-[10px] overflow-hidden mb-[16px]">
 
-                <p className="text-[11px] text-gray-500 mt-2">
-                  Scan with PhonePe, Paytm or any UPI app to complete payment.
-                </p>
-              </div>
-
-              <div className="border border-[#d9dce8] rounded-[10px] overflow-hidden">
-
-                <div className="px-[14px] py-[14px] border-b border-[#e7e7ef] flex items-center justify-between">
+                <div
+                  onClick={() => setIsUpiDropdownOpen((prev) => !prev)}
+                  className="px-[14px] py-[14px] flex items-center justify-between cursor-pointer select-none bg-white hover:bg-gray-50/50 transition-colors"
+                >
 
                   <div className="flex items-center gap-2">
 
@@ -1554,86 +1504,156 @@ useEffect(() => {
 
                   </div>
 
-                  <span className="text-[#616173]">⌄</span>
+                  <span
+                    className={`text-[#616173] text-[16px] font-semibold transition-transform duration-200 inline-block ${
+                      isUpiDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  >
+                    ⌄
+                  </span>
 
                 </div>
 
+                {isUpiDropdownOpen && (
+                  <div className="border-t border-[#e7e7ef]">
+                    {[
 
+                      ["phonepe", "PhonePe", "P"],
 
-                {[
+                      ["paytm", "Paytm", "P"]
 
-                  ["phonepe", "PhonePe", "P"],
+                    ].map(([value, label, icon]) => (
 
-                  ["paytm", "Paytm", "P"]
+                      <label
 
-                ].map(([value, label, icon]) => (
+                        key={value}
 
-                  <label
+                        className="px-[14px] py-[15px] border-b last:border-b-0 border-[#ececf2] flex items-center justify-between cursor-pointer hover:bg-gray-50/40 transition-colors"
 
-                    key={value}
+                      >
 
-                    className="px-[14px] py-[15px] border-b last:border-b-0 border-[#ececf2] flex items-center justify-between cursor-pointer"
+                        <div className="flex items-center gap-[12px]">
 
-                  >
+                          <input
 
-                    <div className="flex items-center gap-[12px]">
+                            type="radio"
 
-                      <input
+                            name="checkout-payment"
 
-                        type="radio"
+                            value={value}
 
-                        name="checkout-payment"
+                            checked={selectedPayment === value}
 
-                        value={value}
+                            onChange={() => setSelectedPayment(value)}
 
-                        checked={selectedPayment === value}
+                            className="w-[18px] h-[18px] accent-[#3A66CF]"
 
-                        onChange={() => setSelectedPayment(value)}
+                          />
 
-                        className="w-[18px] h-[18px] accent-[#3A66CF]"
+                          <span className="text-[14px] font-[600] text-[#25252d]">
 
+                            {label}
+
+                          </span>
+
+                        </div>
+
+                        {value === "phonepe" ? (
+                          <img
+                            src="https://cdn.simpleicons.org/phonepe/5F259F"
+                            alt="PhonePe"
+                            className="w-[30px] h-[30px] object-contain"
+                          />
+                        ) : value === "paytm" ? (
+                          <div className="text-[14px] font-[800] tracking-[-1px]">
+                            <span className="text-[#002970]">pay</span>
+                            <span className="text-[#00baf2]">tm</span>
+                          </div>
+                        ) : (
+                          <span className="w-[30px] h-[30px] rounded-full bg-gray-50 flex items-center justify-center text-[13px] font-bold">
+                            {icon}
+                          </span>
+                        )}
+
+                      </label>
+
+                    ))}
+                  </div>
+                )}
+
+              </div>
+
+              {/* ========================================= */}
+              {/* QR CODE PAYMENT SECTION (BELOW UPI SECTION) */}
+              {/* ========================================= */}
+              <div className="mb-[16px] border border-blue-200 bg-gradient-to-b from-blue-50/70 to-white rounded-[12px] p-4 text-center shadow-sm">
+                <div
+                  onClick={() => setIsQrDropdownOpen((prev) => !prev)}
+                  className="flex items-center justify-between cursor-pointer select-none"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
+                      QR
+                    </span>
+                    <div className="text-left">
+                      <p className="font-bold text-gray-900 text-[13px] leading-tight">Scan to Pay via Any UPI App</p>
+                      <p className="text-[11px] text-gray-500">PhonePe, Paytm, BHIM & all UPI apps</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-2 py-0.5 rounded-full">
+                      Instant
+                    </span>
+                    <span
+                      className={`text-[#616173] text-[16px] font-semibold transition-transform duration-200 inline-block ${
+                        isQrDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    >
+                      ⌄
+                    </span>
+                  </div>
+                </div>
+
+                {isQrDropdownOpen && (
+                  <div className="pt-3 border-t border-blue-100/80 mt-3">
+                    {/* QR Code Image */}
+                    <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 inline-block mx-auto my-1">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(
+                          `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&aid=${aid}&am=${Number(
+                            buydata?.length > 0
+                              ? qtyAdd *
+                                  (buydata[0]?.yesnoval
+                                    ? +buydata[0]?.price + 20
+                                    : +buydata[0]?.price) +
+                                (finalPriceAll || 0)
+                              : finalPriceAll || 0
+                          ).toFixed(2)}&cu=INR`
+                        )}`}
+                        alt="UPI Payment QR Code"
+                        className="w-44 h-44 mx-auto object-contain rounded-md"
                       />
-
-                      <span className="text-[14px] font-[600] text-[#25252d]">
-
-                        {label}
-
-                      </span>
-
+                      <div className="mt-2 text-center">
+                        <p className="text-[15px] font-bold text-gray-900">
+                          ₹
+                          {buydata?.length > 0
+                            ? qtyAdd *
+                                (buydata[0]?.yesnoval
+                                  ? +buydata[0]?.price + 20
+                                  : +buydata[0]?.price) +
+                              (finalPriceAll || 0)
+                            : finalPriceAll || 0}
+                        </p>
+                        <p className="text-[11px] text-gray-500 font-medium">{payeeName}</p>
+                      </div>
                     </div>
 
-                    {
-                     value === "gpay" ? (
-                      <img
-                        src={gpayIcon}
-                        alt="G Pay"
-                        className="w-[30px] h-[30px] object-contain rounded-full"
-                      />
-                    ) : value === "phonepe" ? (
-                      <img
-                        src="https://cdn.simpleicons.org/phonepe/5F259F"
-                        alt="PhonePe"
-                        className="w-[30px] h-[30px] object-contain"
-                      />
-                    ) : value === "paytm" ? (
-                      <div className="text-[14px] font-[800] tracking-[-1px]">
-                        <span className="text-[#002970]">pay</span>
-                        <span className="text-[#00baf2]">tm</span>
-                      </div>
-                    ) : value === "bhim_upi" ? (
-                      <div className="w-[34px] h-[30px] rounded-[5px] bg-[#0b7a5a] text-white flex items-center justify-center text-[9px] font-[800]">
-                        BHIM
-                      </div>
-                    ) : (
-                      <span className="w-[30px] h-[30px] rounded-full bg-gray-50 flex items-center justify-center text-[13px] font-bold">
-                        {icon}
-                      </span>
-                    )}
-
-                  </label>
-
-                ))}
-
+                    <p className="text-[11px] text-gray-500 mt-2">
+                      Scan with PhonePe, Paytm or any UPI app to complete payment.
+                    </p>
+                  </div>
+                )}
               </div>
 
 
