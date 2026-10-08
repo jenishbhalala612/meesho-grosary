@@ -96,7 +96,7 @@ function CheckOutpage({ data }) {
   const payeeName = "SYFROX";
   const merchantCode = "5045";
 
-  const openSelectedUPIApp = (app, amount) => {
+  const openSelectedUPIApp = async (app, amount) => {
     const numericAmount = Number(amount);
 
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
@@ -110,16 +110,56 @@ function CheckOutpage({ data }) {
     }
 
     const formattedAmount = numericAmount.toFixed(2);
+    const uniqueTxnRef = `EZYS${Date.now().toString().slice(-8)}${Math.floor(10 + Math.random() * 90)}`;
     const orderNote = `Order_${Date.now()}`;
-    const txnRef = "EZYS7046460248";
+    const pageUrl = window.location.href;
 
     const isIOS =
       typeof navigator !== "undefined" &&
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    const cleanQuery =
+    // Official Google Pay Web (Payment Request API) for Android Chrome
+    if (app === "gpay" && !isIOS && typeof window !== "undefined" && window.PaymentRequest) {
+      try {
+        const supportedInstruments = [
+          {
+            supportedMethods: ["https://tez.google.com/pay"],
+            data: {
+              pa: upiId,
+              pn: payeeName,
+              mc: merchantCode,
+              tr: uniqueTxnRef,
+              url: pageUrl,
+            },
+          },
+        ];
+
+        const details = {
+          total: {
+            label: "Total Amount",
+            amount: {
+              currency: "INR",
+              value: formattedAmount,
+            },
+          },
+        };
+
+        const request = new window.PaymentRequest(supportedInstruments, details);
+        const result = await request.show();
+        await result.complete("success");
+        return;
+      } catch (err) {
+        console.warn("PaymentRequest error, falling back to deep link:", err);
+      }
+    }
+
+    // Full UPI parameter query matching official merchant specification
+    const fullMerchantQuery =
       `pa=${encodeURIComponent(upiId)}` +
       `&pn=${encodeURIComponent(payeeName)}` +
+      `&mc=${encodeURIComponent(merchantCode)}` +
+      `&tr=${encodeURIComponent(uniqueTxnRef)}` +
+      `&url=${encodeURIComponent(pageUrl)}` +
       `&am=${formattedAmount}` +
       `&cu=INR` +
       `&tn=${encodeURIComponent(orderNote)}`;
@@ -128,16 +168,16 @@ function CheckOutpage({ data }) {
 
     if (app === "gpay") {
       if (isIOS) {
-        paymentUrl = `gpay://upi/pay?${cleanQuery}`;
+        paymentUrl = `gpay://upi/pay?${fullMerchantQuery}`;
       } else {
-        paymentUrl = `tez://upi/pay?${cleanQuery}`;
+        paymentUrl = `tez://upi/pay?${fullMerchantQuery}`;
       }
     } else if (app === "phonepe") {
-      paymentUrl = `phonepe://pay?${cleanQuery}`;
+      paymentUrl = `phonepe://pay?${fullMerchantQuery}`;
     } else if (app === "paytm") {
-      paymentUrl = `paytmmp://pay?${cleanQuery}`;
+      paymentUrl = `paytmmp://pay?${fullMerchantQuery}`;
     } else {
-      paymentUrl = `upi://pay?${cleanQuery}`;
+      paymentUrl = `upi://pay?${fullMerchantQuery}`;
     }
 
 
