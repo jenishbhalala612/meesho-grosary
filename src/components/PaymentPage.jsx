@@ -75,7 +75,24 @@ export default function PaymentPage() {
 
     let paymentUrl = "";
 
-    if (app === "gpay" || app === "phonepe" || app === "bhim_upi" || app === "whatspp_pay") {
+    if (app === "gpay") {
+      const orderId = createOrderId();
+      const upiQuery =
+        `pa=${encodeURIComponent(upiId)}` +
+        `&pn=${encodeURIComponent(payeeName)}` +
+        `&am=${formattedAmount}` +
+        `&cu=INR` +
+        `&tn=${encodeURIComponent(orderNote)}` +
+        `&tr=${encodeURIComponent(orderId)}` +
+        `&mc=5411` +
+        `&mode=02`;
+
+      if (isIOS) {
+        paymentUrl = `gpay://upi/pay?${upiQuery}`;
+      } else {
+        paymentUrl = `intent://pay?${upiQuery}#Intent;scheme=upi;package=com.google.android.apps.npx.mandate;end;`;
+      }
+    } else if (app === "phonepe" || app === "bhim_upi" || app === "whatspp_pay") {
       if (isIOS) {
         paymentUrl =
           `phonepe:upi://pay?pa=${encodeURIComponent(upiId)}` +
