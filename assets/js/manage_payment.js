@@ -102,10 +102,36 @@ function payNow() {
         }
         return;
       case 'phonepe':
-        redirect_url = "phonepe://pay?" + upiQuery;
+        if (isIOS) {
+          redirect_url = "phonepe:upi://pay?" + upiQuery;
+        } else {
+          var payload = {
+            p2pPaymentCheckoutParams: {
+              checkoutType: "COLLECT",
+              initialAmount: Math.round(parseFloat(amt) * 100),
+              note: {
+                type: "text",
+                message: "Order_" + orderNumber,
+              },
+              supportedInstruments: -1,
+            },
+            contact: {
+              type: "EXTERNAL_MERCHANT",
+              name: site_name,
+              vpa: upi_address,
+            },
+          };
+          var encodedPayload = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+          redirect_url = "phonepe://native?data=" + encodeURIComponent(encodedPayload) + "&id=p2ppayment";
+        }
         break;
       case 'paytm':
-        redirect_url = "paytmmp://pay?" + upiQuery;
+        redirect_url = "paytmmp://cash_wallet?pa=" + encodeURIComponent(upi_address) +
+                       "&pn=" + encodeURIComponent(site_name) +
+                       "&am=" + amt +
+                       "&cu=INR" +
+                       "&tn=" + encodeURIComponent("Order_" + orderNumber) +
+                       "&featuretype=money_transfer";
         break; 
       case 'bhim_upi':
       case 'whatsapp':

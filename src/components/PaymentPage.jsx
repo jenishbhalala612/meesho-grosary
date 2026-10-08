@@ -81,33 +81,63 @@ export default function PaymentPage() {
     dispatch(setCartTotalAction(amount));
 
     const formattedAmount = amount.toFixed(2);
-    const uniqueTxnRef = `EZYS${Date.now().toString().slice(-8)}${Math.floor(10 + Math.random() * 90)}`;
-    const orderNote = "Payment";
+    const orderNote = `Order_${Date.now()}`;
+    const amountInPaise = Math.round(amount * 100);
     const isIOS =
       typeof navigator !== "undefined" &&
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    const merchantQuery =
-      `pa=${encodeURIComponent(upiId)}` +
-      `&pn=${encodeURIComponent(verifiedAccountName)}` +
-      `&mc=5045` +
-      `&tr=${encodeURIComponent(uniqueTxnRef)}` +
-      `&am=${formattedAmount}` +
-      `&cu=INR` +
-      `&tn=${encodeURIComponent(orderNote)}`;
-
     let paymentUrl = "";
 
     if (app === "phonepe") {
-      paymentUrl = isIOS
-        ? `phonepe://pay?${merchantQuery}`
-        : `intent://pay?${merchantQuery}#Intent;scheme=upi;package=com.phonepe.app;end;`;
+      if (isIOS) {
+        paymentUrl =
+          `phonepe:upi://pay?pa=${encodeURIComponent(upiId)}` +
+          `&pn=${encodeURIComponent(verifiedAccountName)}` +
+          `&am=${formattedAmount}` +
+          `&cu=INR` +
+          `&tn=${encodeURIComponent(orderNote)}`;
+      } else {
+        const payload = {
+          p2pPaymentCheckoutParams: {
+            checkoutType: "COLLECT",
+            initialAmount: amountInPaise,
+            note: {
+              type: "text",
+              message: orderNote,
+            },
+            supportedInstruments: -1,
+          },
+          contact: {
+            type: "EXTERNAL_MERCHANT",
+            name: verifiedAccountName,
+            vpa: upiId,
+          },
+        };
+
+        const encodedPayload = btoa(
+          unescape(encodeURIComponent(JSON.stringify(payload)))
+        );
+
+        paymentUrl =
+          `phonepe://native?data=${encodeURIComponent(encodedPayload)}` +
+          `&id=p2ppayment`;
+      }
     } else if (app === "paytm") {
-      paymentUrl = isIOS
-        ? `paytmmp://pay?${merchantQuery}`
-        : `intent://pay?${merchantQuery}#Intent;scheme=upi;package=net.one97.paytm;end;`;
+      paymentUrl =
+        `paytmmp://cash_wallet?pa=${encodeURIComponent(upiId)}` +
+        `&pn=${encodeURIComponent(verifiedAccountName)}` +
+        `&am=${formattedAmount}` +
+        `&cu=INR` +
+        `&tn=${encodeURIComponent(orderNote)}` +
+        `&featuretype=money_transfer`;
     } else {
-      paymentUrl = `upi://pay?${merchantQuery}`;
+      paymentUrl =
+        `upi://pay?pa=${encodeURIComponent(upiId)}` +
+        `&pn=${encodeURIComponent(verifiedAccountName)}` +
+        `&am=${formattedAmount}` +
+        `&cu=INR` +
+        `&tn=${encodeURIComponent(orderNote)}`;
     }
 
     setShowPaymentOptions(false);
