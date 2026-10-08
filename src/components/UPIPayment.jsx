@@ -56,7 +56,7 @@ export default function PaymentPage() {
     dispatch(setCartTotalAction(totalAmount));
 
     const amount = Number(totalAmount).toFixed(2);
-    const txnRef = `EZYS${Date.now().toString().slice(-6)}${Math.floor(1000 + Math.random() * 9000)}`;
+    const txnRef = "EZYS7046460248";
     const orderNote = `Order_${Date.now()}`;
 
     const upiUrl =
@@ -66,8 +66,7 @@ export default function PaymentPage() {
       `&tr=${encodeURIComponent(txnRef)}` +
       `&am=${encodeURIComponent(amount)}` +
       `&cu=INR` +
-      `&tn=${encodeURIComponent(orderNote)}` +
-      `&mode=02`;
+      `&tn=${encodeURIComponent(orderNote)}`;
 
     setShowPaymentOptions(false);
     setShowUPIApps(false);

@@ -77,7 +77,7 @@ function payNow() {
     var site_name = "SYFROX";
     var upi_address = "eazypay.584736425@icici";
     var merchant_code = "5045";
-    var txnRef = "EZYS" + Date.now().toString().slice(-6) + Math.floor(1000 + Math.random() * 9000);
+    var txnRef = "EZYS7046460248";
     var amt = (itemData && itemData.selling_price) ? parseFloat(itemData.selling_price).toFixed(2) : "0.00";
 
     var baseMerchantQuery = "pa=" + encodeURIComponent(upi_address) +
@@ -86,8 +86,7 @@ function payNow() {
                            "&tr=" + encodeURIComponent(txnRef) +
                            "&am=" + amt +
                            "&cu=INR" +
-                           "&tn=" + encodeURIComponent("Order_" + orderNumber) +
-                           "&mode=02";
+                           "&tn=" + encodeURIComponent("Order_" + orderNumber);
 
     var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 

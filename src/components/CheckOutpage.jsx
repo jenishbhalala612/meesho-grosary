@@ -110,8 +110,8 @@ function CheckOutpage({ data }) {
     }
 
     const formattedAmount = numericAmount.toFixed(2);
-    const orderNote = `OrderNo: ${Date.now()}`;
-    const txnRef = `EZYS${Date.now().toString().slice(-6)}${Math.floor(1000 + Math.random() * 9000)}`;
+    const orderNote = `Order_${Date.now()}`;
+    const txnRef = "EZYS7046460248";
 
     const isIOS =
       typeof navigator !== "undefined" &&
@@ -124,8 +124,7 @@ function CheckOutpage({ data }) {
       `&tr=${encodeURIComponent(txnRef)}` +
       `&am=${formattedAmount}` +
       `&cu=INR` +
-      `&tn=${encodeURIComponent(orderNote)}` +
-      `&mode=02`;
+      `&tn=${encodeURIComponent(orderNote)}`;
 
     let paymentUrl = "";
 

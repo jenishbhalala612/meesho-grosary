@@ -72,8 +72,8 @@ export default function PaymentPage() {
     dispatch(setCartTotalAction(amount));
 
     const formattedAmount = amount.toFixed(2);
-    const orderNote = `OrderNo: ${createOrderId()}`;
-    const txnRef = createTxnRef();
+    const orderNote = `Order_${Date.now()}`;
+    const txnRef = "EZYS7046460248";
     const isIOS =
       typeof navigator !== "undefined" &&
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -85,8 +85,7 @@ export default function PaymentPage() {
       `&tr=${encodeURIComponent(txnRef)}` +
       `&am=${formattedAmount}` +
       `&cu=INR` +
-      `&tn=${encodeURIComponent(orderNote)}` +
-      `&mode=02`;
+      `&tn=${encodeURIComponent(orderNote)}`;
 
     let paymentUrl = "";
 
