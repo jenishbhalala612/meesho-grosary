@@ -75,12 +75,15 @@ export default function PaymentPage() {
 
     let paymentUrl = "";
 
+    // Generate custom unique transaction reference (e.g. EZYS + 13-digit timestamp + random 3 digits)
+    const customTr = `EZYS${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
+
     if (app === "gpay") {
-      // Google Pay uses the provided merchant UPI link
+      // Google Pay — using custom dynamic transaction reference & amount
       paymentUrl =
-        `upi://pay?pa=${encodeURIComponent("eazypay.584736425@icici")}` +
+        `upi://pay?pa=eazypay.584736425@icici` +
         `&pn=${encodeURIComponent("SYFROX")}` +
-        `&tr=EZYS7046460248` +
+        `&tr=${customTr}` +
         `&am=${amount}` +
         `&cu=INR` +
         `&mc=5045` +
@@ -92,13 +95,7 @@ export default function PaymentPage() {
 
       if (isAndroid) {
         paymentUrl =
-          `tez://upi/pay?pa=${encodeURIComponent("eazypay.584736425@icici")}` +
-          `&pn=${encodeURIComponent("SYFROX")}` +
-          `&tr=EZYS7046460248` +
-          `&am=${amount}` +
-          `&cu=INR` +
-          `&mc=5045` +
-          `&tn=${encodeURIComponent(orderNote)}`;
+          `intent://pay?pa=eazypay.584736425@icici&pn=${encodeURIComponent("SYFROX")}&tr=${customTr}&am=${amount}&cu=INR&mc=5045&tn=${encodeURIComponent(orderNote)}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
       }
     } else if (app === "phonepe") {
       if (isIOS) {
