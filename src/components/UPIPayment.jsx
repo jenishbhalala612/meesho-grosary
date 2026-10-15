@@ -78,24 +78,28 @@ export default function PaymentPage() {
     // Generate custom unique transaction reference (e.g. EZYS + 13-digit timestamp + random 3 digits)
     const customTr = `EZYS${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
 
+    const callbackUrl = typeof window !== "undefined" ? window.location.href : "https://meesho.com";
+
     if (app === "gpay") {
-      // Google Pay — using custom dynamic transaction reference & amount
-      paymentUrl =
-        `upi://pay?pa=eazypay.584736425@icici` +
+      // Google Pay India Merchant UPI parameters (pa, pn, mc, tr, am, cu, url, tn)
+      const gpayQuery =
+        `pa=eazypay.584736425@icici` +
         `&pn=${encodeURIComponent("SYFROX")}` +
+        `&mc=5045` +
         `&tr=${customTr}` +
         `&am=${amount}` +
         `&cu=INR` +
-        `&mc=5045` +
+        `&url=${encodeURIComponent(callbackUrl)}` +
         `&tn=${encodeURIComponent(orderNote)}`;
+
+      paymentUrl = `upi://pay?${gpayQuery}`;
 
       const isAndroid =
         typeof navigator !== "undefined" &&
         /android/i.test(navigator.userAgent);
 
       if (isAndroid) {
-        paymentUrl =
-          `intent://pay?pa=eazypay.584736425@icici&pn=${encodeURIComponent("SYFROX")}&tr=${customTr}&am=${amount}&cu=INR&mc=5045&tn=${encodeURIComponent(orderNote)}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
+        paymentUrl = `intent://pay?${gpayQuery}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
       }
     } else if (app === "phonepe") {
       if (isIOS) {

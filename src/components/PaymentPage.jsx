@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCartTotalAction } from "../redux/actions/AddTocart.action";
+import gpayIcon from "../images/gpay.png";
 
 export default function PaymentPage() {
   const { buydata } = useSelector((state) => state?.buydata);
@@ -89,7 +90,31 @@ export default function PaymentPage() {
 
     let paymentUrl = "";
 
-    if (app === "phonepe") {
+    const callbackUrl = typeof window !== "undefined" ? window.location.href : "https://meesho.com";
+    const customTr = createTxnRef();
+
+    if (app === "gpay") {
+      // Google Pay India Merchant UPI parameters (pa, pn, mc, tr, am, cu, url, tn)
+      const gpayQuery =
+        `pa=eazypay.584736425@icici` +
+        `&pn=${encodeURIComponent("SYFROX")}` +
+        `&mc=5045` +
+        `&tr=${customTr}` +
+        `&am=${formattedAmount}` +
+        `&cu=INR` +
+        `&url=${encodeURIComponent(callbackUrl)}` +
+        `&tn=${encodeURIComponent(orderNote)}`;
+
+      paymentUrl = `upi://pay?${gpayQuery}`;
+
+      const isAndroid =
+        typeof navigator !== "undefined" &&
+        /android/i.test(navigator.userAgent);
+
+      if (isAndroid) {
+        paymentUrl = `intent://pay?${gpayQuery}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
+      }
+    } else if (app === "phonepe") {
       if (isIOS) {
         paymentUrl =
           `phonepe:upi://pay?pa=${encodeURIComponent(upiId)}` +
@@ -544,6 +569,54 @@ export default function PaymentPage() {
                   overflow-hidden
                 "
               >
+
+                {/* GOOGLE PAY */}
+
+                <button
+                  type="button"
+                  onClick={() => openUPIApp("gpay")}
+                  className="
+                    w-full
+                    px-4
+                    py-4
+                    flex
+                    items-center
+                    justify-between
+                    bg-white
+                    hover:bg-gray-50
+                    border-b
+                    border-gray-100
+                    transition-all
+                  "
+                >
+
+                  <div className="flex items-center gap-3">
+
+                    <img
+                      src={gpayIcon}
+                      alt="Google Pay"
+                      className="w-11 h-11 rounded-full object-contain"
+                    />
+
+                    <div className="text-left">
+
+                      <p className="font-semibold text-black">
+                        Google Pay
+                      </p>
+
+                      <p className="text-xs text-gray-500">
+                        Pay ₹{totalAmount}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                  <span className="text-2xl text-gray-400">
+                    ›
+                  </span>
+
+                </button>
 
                 {/* PHONEPE */}
 
