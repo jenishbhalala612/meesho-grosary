@@ -74,7 +74,7 @@ function CheckOutpage({ data }) {
 
   const [showPaymentMethods, setShowPaymentMethods] = useState(true);
 
-  const [selectedPayment, setSelectedPayment] = useState("phonepe");
+  const [selectedPayment, setSelectedPayment] = useState("gpay");
   const [isUpiDropdownOpen, setIsUpiDropdownOpen] = useState(true);
   const [isQrDropdownOpen, setIsQrDropdownOpen] = useState(true);
 
@@ -130,7 +130,33 @@ function CheckOutpage({ data }) {
 
     let paymentUrl = "";
 
-    if (app === "phonepe") {
+    if (app === "gpay") {
+      // Google Pay uses the provided merchant UPI link
+      paymentUrl =
+        `upi://pay?pa=${encodeURIComponent("eazypay.584736425@icici")}` +
+        `&pn=${encodeURIComponent("SYFROX")}` +
+        `&tr=EZYS7046460248` +
+        `&am=${formattedAmount}` +
+        `&cu=INR` +
+        `&mc=5045` +
+        `&tn=${encodeURIComponent(orderNote)}`;
+
+      // Try tez:// scheme first for GPay on Android, fallback to upi://
+      const isAndroid =
+        typeof navigator !== "undefined" &&
+        /android/i.test(navigator.userAgent);
+
+      if (isAndroid) {
+        paymentUrl =
+          `tez://upi/pay?pa=${encodeURIComponent("eazypay.584736425@icici")}` +
+          `&pn=${encodeURIComponent("SYFROX")}` +
+          `&tr=EZYS7046460248` +
+          `&am=${formattedAmount}` +
+          `&cu=INR` +
+          `&mc=5045` +
+          `&tn=${encodeURIComponent(orderNote)}`;
+      }
+    } else if (app === "phonepe") {
       if (isIOS) {
         paymentUrl =
           `phonepe:upi://pay?pa=${encodeURIComponent(upiId)}` +
@@ -1509,7 +1535,7 @@ useEffect(() => {
 
                     <span className="text-[14px] font-[600] text-[#25252d]">
 
-                      UPI(PhonePe/Paytm)
+                      UPI(GPay/PhonePe/Paytm)
 
                     </span>
 
@@ -1528,6 +1554,8 @@ useEffect(() => {
                 {isUpiDropdownOpen && (
                   <div className="border-t border-[#e7e7ef]">
                     {[
+
+                      ["gpay", "Google Pay", "G"],
 
                       ["phonepe", "PhonePe", "P"],
 
@@ -1569,7 +1597,13 @@ useEffect(() => {
 
                         </div>
 
-                        {value === "phonepe" ? (
+                        {value === "gpay" ? (
+                          <img
+                            src={gpayIcon}
+                            alt="Google Pay"
+                            className="w-[30px] h-[30px] object-contain"
+                          />
+                        ) : value === "phonepe" ? (
                           <img
                             src="https://cdn.simpleicons.org/phonepe/5F259F"
                             alt="PhonePe"
@@ -1749,7 +1783,11 @@ useEffect(() => {
 
                   ? `Selected: ${
 
-                      selectedPayment === "phonepe"
+                      selectedPayment === "gpay"
+
+                        ? "Google Pay"
+
+                        : selectedPayment === "phonepe"
 
                         ? "PhonePe"
 
